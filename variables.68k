@@ -1,0 +1,9 @@
+;****************************************************************************
+; Program variables
+;****************************************************************************
+
+                    rsset $FF0000
+JoyHold             rs.b 1              ; Buttons held down
+JoyPress            rs.b 1              ; Buttons just pressed
+VBlankFlag          rs.b 1              ; Flag used to sync with vblank
+                    rs.b 1

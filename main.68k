@@ -1,0 +1,93 @@
+;****************************************************************************
+; EntryPoint
+; Where the program starts.
+;****************************************************************************
+
+EntryPoint:
+    move.w  #$2700, sr                  ; Disable interrupts
+    
+    move.b  (HwVersion), d7             ; Disable TMSS
+    and.b   #$0F, d7
+    beq.s   @NoTmss
+    move.l  #'SEGA', (TmssPort)
+@NoTmss:
+    
+    jsr     (InitJoypad).w              ; Set up system
+    jsr     (InitVideo).w
+    
+    lea     (InstrumentList), a0
+    bsr     Echo_Init
+    
+    moveq   #4, d7                      ; Write title
+    moveq   #2, d6
+    lea     (TextTitle), a6
+    jsr     (WriteText).w
+    
+    moveq   #4, d7                      ; Write instructions
+    moveq   #6, d6
+    lea     (TextLeft), a6
+    jsr     (WriteText).w
+    
+    moveq   #4, d7
+    moveq   #8, d6
+    lea     (TextCenter), a6
+    jsr     (WriteText).w
+    
+    moveq   #4, d7
+    moveq   #10, d6
+    lea     (TextRight), a6
+    jsr     (WriteText).w
+
+;****************************************************************************
+
+MainLoop:
+    move.b  (JoyPress), d7              ; Get button presses
+    
+    btst    #JOY_A, d7                  ; Play left drum?
+    beq.s   @NoLeft
+    lea     (EsfLeft), a0
+    bsr     Echo_PlaySfx
+@NoLeft:
+    
+    btst    #JOY_C, d7                  ; Play right drum?
+    beq.s   @NoRight
+    lea     (EsfRight), a0
+    bsr     Echo_PlaySfx
+@NoRight:
+    
+    btst    #JOY_B, d7                  ; Play center drum?
+    beq.s   @NoCenter
+    lea     (EsfCenter), a0
+    bsr     Echo_PlaySfx
+@NoCenter:
+    
+    jsr     (NextFrame).w               ; Wait until next frame
+    bra     MainLoop
+
+;****************************************************************************
+; NextFrame
+; Waits until the next frame and updates the system state.
+;----------------------------------------------------------------------------
+; breaks ........ all
+;****************************************************************************
+
+NextFrame:
+    jsr     (Vsync).w                   ; Wait for next vblank
+    move.w  #VDPREG_MODE2|$64,(VdpCtrl) ; Turn on display
+    
+    jsr     (ReadJoypad).w              ; Update joypad input
+    rts                                 ; End of subroutine
+
+;****************************************************************************
+; ErrorInt
+; Handler for when the program crashes.
+;****************************************************************************
+
+ErrorInt:
+    move.w  #$2700, sr                  ; Disable interrupts
+    
+    move.w  #VDPREG_BGCOLOR|$00, (VdpCtrl)  ; Tint the screen red
+    move.l  #$C0000000, (VdpCtrl)
+    move.w  #$000E, (VdpData)
+    
+    bra.s   *                           ; Hang up forever
