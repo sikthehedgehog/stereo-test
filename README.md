@@ -8,6 +8,8 @@ panning positions.
 No real license for this thing (it was just a quick program), do whatever you
 want with it.
 
+![](screenshot.png)
+
 ## Building
 
 On Linux:
