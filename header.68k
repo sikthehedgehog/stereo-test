@@ -27,7 +27,7 @@
 ;****************************************************************************
 
     dc.b    'SEGA MEGA DRIVE '
-    dc.b    '(C) SIK 2017.JAN'
+    dc.b    '(C) SIK 2018.JAN'
     dc.b    'STEREO TEST'
     dcb.b   $150-*, $20
     dc.b    'STEREO TEST'
@@ -39,4 +39,5 @@
     dc.l    $000000, $3FFFFF
     dc.l    $FF0000, $FFFFFF
     dcb.b   $1F0-*, $20
+    dc.b    'JUE'
     dcb.b   $200-*, $20
